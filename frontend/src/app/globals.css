@@ -1,0 +1,61 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap");
+
+@import "tailwindcss";
+
+:root {
+  /* Core */
+  --background: #0a0a0a;
+  --foreground: #ededed;
+
+  /* Surfaces / Cards */
+  --surface-1: #1a1a1a;
+  --surface-2: #222222;
+  --surface-3: #2a2a2a;
+
+  /* Primary Colors */
+  --primary: #4f9dff;
+  --primary-hover: #3380ff;
+  --primary-active: #2366cc;
+
+  --secondary: #ff9f43;
+  --secondary-hover: #e68a2f;
+  --secondary-active: #b36c23;
+
+  /* Success / Info / Warning / Error */
+  --success: #2ecc71;
+  --info: #3498db;
+  --warning: #f1c40f;
+  --error: #e74c3c;
+
+  /* Neutral / Border */
+  --border: #333333;
+  --muted: #777777;
+  --disabled: #555555;
+
+  --shadow-light: rgba(255, 255, 255, 0.05);
+  --shadow-dark: rgba(0, 0, 0, 0.7);
+
+  --heading: #ffffff;
+  --text: #ededed;
+  --text-muted: #aaaaaa;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Manrope", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --primary: #4f9dff;
+  }
+}
+
+body {
+  background: var(--surface-1);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
