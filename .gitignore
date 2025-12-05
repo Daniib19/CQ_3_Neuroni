@@ -6,8 +6,8 @@ results/*
 models/
 db_1
 
-annotated_dataset_vald/
-annotated_dataset
+annotated_dataset_yolo_vald/
+annotated_dataset_yolo
 data/dataset_proprietar
 
 # dependencies

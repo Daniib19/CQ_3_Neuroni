@@ -361,8 +361,11 @@ def annotate_folder(input_dir, output_dir="annotated_out"):
 #     save_path = "annotated_result.jpg"
 #     annotate_and_save_faces(img, results, save_path)
 
-if __name__ == "__main__":
-    input_dir = "data/dataset_proprietar"
-    output_dir = "annotated_dataset"
+# if __name__ == "__main__":
+#     input_dir = "data/dataset_proprietar"
+#     output_dir = "annotated_dataset"
 
-    annotate_folder(input_dir, output_dir)
+#     annotate_folder(input_dir, output_dir)
+
+if __name__ == "__main__":
+    build_database(output_root="db_test")
