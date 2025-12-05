@@ -151,7 +151,6 @@ def process_image(image_path):
     else:
         print("No face found on the person.")
 
-
 if __name__ == "__main__":
     warmup_models()
     test_image = "data/dataset/test/Outdoor/Non-masked/Cristina - Outdoor - 30C.png"
