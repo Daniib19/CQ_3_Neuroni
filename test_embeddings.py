@@ -360,3 +360,8 @@ def evaluate_dataset(
             print(f"{r['path']} → {r['gt']} matched correctly ({r['score']:.4f})")
 
     return results
+
+# MAIN
+# ============================================================
+if __name__ == "__main__":
+    evaluate_dataset_with_autoupdate(test_root="data/dataset_proprietar", db_json="db_test/embeddings.json", threshold=0.23)
