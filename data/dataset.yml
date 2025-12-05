@@ -1,0 +1,5 @@
+train: data/our_dataset/images/train
+val:   data/our_dataset/images/val
+
+nc: 1
+names: ['face']
