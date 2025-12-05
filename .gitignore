@@ -6,7 +6,9 @@ results/*
 models/
 db_1
 
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+annotated_dataset_vald/
+annotated_dataset
+data/dataset_proprietar
 
 # dependencies
 frontend/node_modules

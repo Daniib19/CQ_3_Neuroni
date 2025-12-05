@@ -35,7 +35,6 @@ def recognize(embedding, db_entries, threshold=OUR_THRESHOLD):
 
     return best_label, best_score, is_match, scores[:3]
 
-
 # ============================================================
 # Evaluate ONE image
 # ============================================================

@@ -3,6 +3,7 @@ import cv2
 import json
 import numpy as np
 import config as cfg
+import glob
 
 from ultralytics import YOLO
 import onnxruntime as ort
@@ -10,6 +11,7 @@ from insightface.app import FaceAnalysis
 
 person_model = YOLO(cfg.YOLO_PATH)
 face_model   = YOLO(cfg.YOLO_FACE_PATH)
+# face_model   = YOLO(cfg.VALD_FACE_PATH)
 embedd_model = cfg.FACE_EMBEDD_MODEL
 
 app_align = FaceAnalysis(name="buffalo_s", providers=['CPUExecutionProvider'])
@@ -70,7 +72,6 @@ def extract_face_from_person(person_img, face_model):
     face = person_img[y1:y2, x1:x2]
     return face if face.size > 0 else None
 
-
 # ============================================================
 # EMBEDDING MODEL
 # ============================================================
@@ -78,7 +79,6 @@ def extract_face_from_person(person_img, face_model):
 def load_embedding_model(path):
     s = ort.InferenceSession(path, providers=["CPUExecutionProvider"])
     return s, s.get_inputs()[0].name, s.get_outputs()[0].name
-
 
 session, embed_input, embed_output = load_embedding_model(embedd_model)
 
@@ -214,5 +214,155 @@ def build_database(db_root="data/dataset/db", output_root="db_test"):
 
     print("\n[✔] Database saved to:", json_path)
 
+def detect_and_save_all_faces(image_path, output_dir="detected_faces"):
+    os.makedirs(output_dir, exist_ok=True)
+
+    img = cv2.imread(image_path)
+    if img is None:
+        print("[ERROR] Cannot read image:", image_path)
+        return []
+
+    persons = detect_and_crop_persons(img, person_model)
+    if not persons:
+        print("[WARN] No persons detected")
+        return []
+
+    saved_paths = []
+    face_id = 1
+
+    for idx, person_crop in enumerate(persons):
+        face = extract_face_from_person(person_crop, face_model)
+        
+        if face is None:
+            # No face found inside this person crop
+            continue
+
+        # Compose filename
+        base = os.path.splitext(os.path.basename(image_path))[0]
+        filename = f"{base}_face_{face_id}.jpg"
+        save_path = os.path.join(output_dir, filename)
+
+        cv2.imwrite(save_path, face)
+        saved_paths.append(save_path)
+
+        print(f"[✔] Saved face {face_id} -> {save_path}")
+        face_id += 1
+
+    if not saved_paths:
+        print("[WARN] No faces saved")
+
+    return saved_paths
+
+def detect_and_save_face(image_path, output_dir="single_faces"):
+    os.makedirs(output_dir, exist_ok=True)
+
+    img = cv2.imread(image_path)
+    if img is None:
+        print("[ERROR] Cannot read:", image_path)
+        return None
+
+    # Step 1: detect person(s)
+    persons = detect_and_crop_persons(img, person_model)
+    if not persons:
+        print("[WARN] No persons detected")
+        return None
+
+    # Step 2: pick closest-to-camera / largest crop
+    areas = [p.shape[0] * p.shape[1] for p in persons]
+    closest = int(np.argmax(areas))
+    person_crop = persons[closest]
+
+    # Step 3: detect face inside that person
+    face = extract_face_from_person(person_crop, face_model)
+    if face is None:
+        print("[WARN] No face detected inside the person crop")
+        return None
+
+    # Step 4: save face crop
+    filename = os.path.basename(image_path)
+    filename = os.path.splitext(filename)[0] + "_face.jpg"
+    save_path = os.path.join(output_dir, filename)
+    cv2.imwrite(save_path, face)
+
+    print("[✔] Face saved to:", save_path)
+    return save_path
+
+def annotate_and_save_faces(img, results, save_path="annotated.jpg"):
+    annotated = img.copy()
+
+    if len(results) == 0 or len(results[0].boxes) == 0:
+        print("[WARN] No face detections to annotate.")
+        return None
+
+    for box in results[0].boxes:
+        x1, y1, x2, y2 = map(int, box.xyxy[0])
+        conf = float(box.conf[0])
+        cls  = int(box.cls[0])
+
+        # Draw bounding box
+        cv2.rectangle(annotated, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+        # Label text: class + confidence
+        label = f"{cls} ({conf:.2f})"
+
+        # Draw text background
+        cv2.rectangle(annotated, (x1, y1 - 20), (x1 + 120, y1), (0, 255, 0), -1)
+        cv2.putText(annotated, label, (x1 + 2, y1 - 5),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
+
+    cv2.imwrite(save_path, annotated)
+    print("[✔] Annotated image saved:", save_path)
+
+    return save_path
+
+def annotate_folder(input_dir, output_dir="annotated_out"):
+    os.makedirs(output_dir, exist_ok=True)
+
+    # supported image types
+    exts = ("*.jpg", "*.jpeg", "*.png", "*.bmp")
+    files = []
+    for e in exts:
+        files.extend(glob.glob(os.path.join(input_dir, e)))
+
+    if not files:
+        print("[WARN] No images found in:", input_dir)
+        return
+
+    print(f"[INFO] Found {len(files)} images.")
+
+    for img_path in files:
+        print(f"[PROCESS] {img_path}")
+
+        img = cv2.imread(img_path)
+        if img is None:
+            print("  [ERROR] Cannot read:", img_path)
+            continue
+
+        # Run YOLO face detection
+        results = face_model.predict(img, conf=0.05)
+
+        # Output filename
+        base = os.path.basename(img_path)
+        save_path = os.path.join(output_dir, base)
+
+        # Annotate
+        annotate_and_save_faces(img, results, save_path)
+
+# if __name__ == "__main__":
+#     img_path = "data/dataset/db/indoor_persons/Cristina - Indoor.jpg"
+
+#     img = cv2.imread(img_path)
+#     if img is None:
+#         print("[ERROR] Could not load image:", img_path)
+#         exit()
+
+#     results = face_model.predict(img, conf=0.05)
+
+#     save_path = "annotated_result.jpg"
+#     annotate_and_save_faces(img, results, save_path)
+
 if __name__ == "__main__":
-  build_database(output_root="db_1")
+    input_dir = "data/dataset_proprietar"
+    output_dir = "annotated_dataset"
+
+    annotate_folder(input_dir, output_dir)

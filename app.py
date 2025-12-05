@@ -8,7 +8,6 @@ face_model = YOLO(cfg.YOLO_FACE_PATH)
 
 if __name__ == "__main__":
   image_path = "data/dataset/test/Indoor/Non-masked/Andres - Indoor - 9C.png"
-  # image_path = "data/dataset/db/indoor_persons/Cristina - Indoor.jpg"
   results = yolo_model(image_path)[0]
 
   img = results.orig_img
