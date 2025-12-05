@@ -1,0 +1,31 @@
+============== SUMMARY ==============
+Threshold used       : 0.3
+True Positives       : 116
+False Positives      : 10
+False Negatives      : 148
+True Negatives       : 131
+=====================================
+
+============== SUMMARY ==============
+Threshold used       : 0.13
+True Positives       : 191
+False Positives      : 122
+False Negatives      : 73
+True Negatives       : 19
+=====================================
+
+============== SUMMARY ==============
+Threshold used       : 0.23
+True Positives       : 148
+False Positives      : 31
+False Negatives      : 116
+True Negatives       : 110
+=====================================
+
+============== SUMMARY ==============
+Threshold used       : 0.2
+True Positives       : 166
+False Positives      : 62
+False Negatives      : 98
+True Negatives       : 79
+=====================================
