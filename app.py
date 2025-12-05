@@ -7,7 +7,8 @@ yolo_model = YOLO(cfg.YOLO_PATH)
 face_model = YOLO(cfg.YOLO_FACE_PATH)
 
 if __name__ == "__main__":
-  image_path = "data/dataset/test/Indoor/Non-masked/Cristina - Indoor - 18C.png"
+  image_path = "data/dataset/test/Indoor/Non-masked/Andres - Indoor - 9C.png"
+  # image_path = "data/dataset/db/indoor_persons/Cristina - Indoor.jpg"
   results = yolo_model(image_path)[0]
 
   img = results.orig_img
@@ -28,7 +29,7 @@ if __name__ == "__main__":
             continue
 
         person_count += 1
-        out_path = os.path.join(cfg.RESULTS_PATh, f"person_{person_count}.jpg")
+        out_path = os.path.join(cfg.RESULTS_PATH, f"person_4.jpg")
         cv2.imwrite(out_path, crop)
         print(f"Saved: {out_path}")
 
